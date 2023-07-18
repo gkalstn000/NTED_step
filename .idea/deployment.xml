@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="root@166.104.246.71:8089 password" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="minsu@166.104.246.71:7003 password (4)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/minsu/NTED" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="root@166.104.246.71:8088 password">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/root/nted" local="$PROJECT_DIR$" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath path="/root/nted/dataset" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="root@166.104.246.71:8089 password">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/root/nted" local="$PROJECT_DIR$" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath path="/root/nted/dataset" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="work@localhost:22222 key (2)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/work/msha/NTED" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>
