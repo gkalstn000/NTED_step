@@ -3,6 +3,18 @@ from PIL import Image
 
 import torch
 import torchvision.transforms.functional as F
+from torchvision.transforms.functional import to_pil_image
+import matplotlib.pyplot as plt
+def tensor_to_pil_image(image_tensor):
+    image_tensor = image_tensor.cpu()
+    # 이미지 텐서를 [0, 1] 범위로 재조정
+    image_tensor = (image_tensor + 1) / 2.0
+    # [0, 1] 범위로 재조정된 이미지 텐서를 [0, 255] 범위로 변환
+    image_tensor = (image_tensor * 255).clamp(0, 255)
+    # 이미지 텐서를 PIL 이미지로 변환
+    image = to_pil_image(image_tensor.byte())
+    plt.imshow(image)
+    plt.show()
 
 def tensor2pilimage(image, width=None, height=None, minus1to1_normalized=False):
     r"""Convert a 3 dimensional torch tensor to a PIL image with the desired
