@@ -32,14 +32,18 @@ def set_random_seed(seed):
 
 def get_trainer(opt, net_G, net_D, net_G_ema, 
                 opt_G, opt_D, sch_G, sch_D, 
-                train_dataset):
+                train_dataset, val_dataset, wandb):
     module, trainer_name = opt.trainer.type.split('::')
 
     trainer_lib = importlib.import_module(module)
     trainer_class = getattr(trainer_lib, trainer_name)
-    trainer = trainer_class(opt, net_G, net_D, net_G_ema,
-                            opt_G, opt_D, sch_G, sch_D,
-                            train_dataset)
+    trainer = trainer_class(opt,
+                            net_G, net_D,
+                            net_G_ema,
+                            opt_G, opt_D,
+                            sch_G, sch_D,
+                            train_dataset, val_dataset,
+                            wandb)
     return trainer
 
 def get_model_optimizer_and_scheduler(opt):

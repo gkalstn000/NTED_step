@@ -4,7 +4,7 @@ snapshot_save_iter: 50000
 snapshot_save_epoch: 20
 snapshot_save_start_iter: 20000
 snapshot_save_start_epoch: 20
-image_save_iter: 2000
+image_save_iter: 1 #2000
 max_epoch: 200
 logging_iter: 100
 step_size: 5

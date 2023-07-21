@@ -17,11 +17,19 @@ from trainers.base import BaseTrainer
 from generators.base_module import PositionalEncoding
 
 class Trainer(BaseTrainer):
-    def __init__(self, opt, net_G, net_D, opt_G, opt_D, sch_G, sch_D,
-                 train_data_loader, val_data_loader=None):
-        super(Trainer, self).__init__(opt, net_G, net_D, opt_G,
-                                      opt_D, sch_G, sch_D,
-                                      train_data_loader, val_data_loader)
+    def __init__(self,
+                 opt,
+                 net_G, net_D,
+                 opt_G, opt_D,
+                 sch_G, sch_D,
+                 train_data_loader, val_data_loader=None,
+                 wandb=None):
+        super(Trainer, self).__init__(opt,
+                                      net_G, net_D,
+                                      opt_G, opt_D,
+                                      sch_G, sch_D,
+                                      train_data_loader, val_data_loader,
+                                      wandb)
         self.accum = 0.5 ** (32 / (10 * 1000))
         self.log_size = int(math.log(opt.data.resolution, 2))
         self.seg_to_color = {}
@@ -34,6 +42,7 @@ class Trainer(BaseTrainer):
 
         height, width = opt.data.sub_path.split('-')
         self.positional_encoding = PositionalEncoding(int(height) * int(width))
+        self.wandb = wandb
 
     def _init_loss(self, opt):
         r"""Define training losses.

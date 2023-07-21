@@ -1,6 +1,7 @@
 import argparse
 
 import data as Dataset
+import wandb
 from config import Config
 from util.logging import init_logging, make_logging_dir
 from util.cudnn import init_cudnn
@@ -43,6 +44,9 @@ if __name__ == '__main__':
     opt.logdir = logdir
     make_logging_dir(logdir, date_uid)
 
+    wandb.login()
+    wandb.init(project="NTED", name=opt.name, settings=wandb.Settings(code_dir="."), resume=True)
+
     init_cudnn(opt.cudnn.deterministic, opt.cudnn.benchmark)
     # create a dataset
     val_dataset, train_dataset = Dataset.get_train_val_dataloader(opt.data)
@@ -53,7 +57,7 @@ if __name__ == '__main__':
 
     trainer = get_trainer(opt, net_G, net_D, net_G_ema, \
                           opt_G, opt_D, sch_G, sch_D, \
-                          train_dataset)
+                          train_dataset, val_dataset, wandb)
 
     current_epoch, current_iteration = trainer.load_checkpoint(
         opt, args.which_iter)   

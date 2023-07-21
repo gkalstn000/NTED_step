@@ -36,6 +36,13 @@
           </mappings>
         </serverdata>
       </paths>
+      <paths name="work@localhost:22222 key (3)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/work/msha/NTED" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
     </serverData>
     <option name="myAutoUpload" value="ALWAYS" />
   </component>

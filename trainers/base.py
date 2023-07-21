@@ -15,15 +15,12 @@ from util.misc import to_cuda
 class BaseTrainer(object):
     def __init__(self,
                  opt,
-                 net_G,
-                 net_D,
+                 net_G, net_D,
                  net_G_ema,
-                 opt_G,
-                 opt_D,
-                 sch_G,
-                 sch_D,
-                 train_data_loader,
-                 val_data_loader=None):
+                 opt_G, opt_D,
+                 sch_G, sch_D,
+                 train_data_loader, val_data_loader=None,
+                 wandb=None):
         super(BaseTrainer, self).__init__()
         print('Setup trainer.')
 
