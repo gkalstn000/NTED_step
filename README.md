@@ -52,9 +52,9 @@ We propose a Neural-Texture-Extraction-Distribution operation for controllable p
 
 ``` bash
 # 1. Create a conda virtual environment.
-conda create -n NTED python=3.6
+conda create -n NTED python=3.8
 conda activate NTED
-conda install -c pytorch pytorch=1.7.1 torchvision cudatoolkit=10.2
+conda install -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.3
 
 # 2. Clone the Repo and Install dependencies
 git clone --recursive https://github.com/RenYurui/Neural-Texture-Extraction-Distribution.git

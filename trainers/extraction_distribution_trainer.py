@@ -20,12 +20,14 @@ class Trainer(BaseTrainer):
     def __init__(self,
                  opt,
                  net_G, net_D,
+                 net_G_ema,
                  opt_G, opt_D,
                  sch_G, sch_D,
                  train_data_loader, val_data_loader=None,
                  wandb=None):
         super(Trainer, self).__init__(opt,
                                       net_G, net_D,
+                                      net_G_ema,
                                       opt_G, opt_D,
                                       sch_G, sch_D,
                                       train_data_loader, val_data_loader,
@@ -42,7 +44,6 @@ class Trainer(BaseTrainer):
 
         height, width = opt.data.sub_path.split('-')
         self.positional_encoding = PositionalEncoding(int(height) * int(width))
-        self.wandb = wandb
 
     def _init_loss(self, opt):
         r"""Define training losses.
@@ -215,24 +216,17 @@ class Trainer(BaseTrainer):
         tgt_prev = self.discretized_image_sampling(gt_image, sampling_step)
 
         input_image_discretize, gt_image_discretize = self.discretized_dataset_sampling(input_image, gt_image, sampling_step)
-        target_image_discretize, source_image_discretize = torch.chunk(gt_image_discretize, 2, 0)
 
         with torch.no_grad():
             self.net_G_ema.eval()
             fake_img, info, step = self.generate_fake(self.net_G_ema, tgt_prev, input_skeleton, input_image,
                                                       input_image_discretize, sampling_step)
 
-            fake_target_rec, fake_source_rec = torch.chunk(fake_img, 2, dim=0)
-
             attn_image = attn2image(info['extraction_softmax'], info['semantic_distribution'], input_image_discretize)
-            attn_target, attn_source = torch.chunk(attn_image, 2, dim=0)
-            sample1 = torch.cat([source_image.cpu(), source_image_discretize.cpu(), source_skeleton[:,:3].cpu(), fake_source_rec.cpu(), attn_source.cpu()], 3)
-            sample2 = torch.cat([target_image.cpu(), target_image_discretize.cpu(), target_skeleton[:,:3].cpu(), fake_target_rec.cpu(), attn_target.cpu()], 3)
-            sample = torch.cat([sample1, sample2], 2)
-            sample = torch.cat(torch.chunk(sample, source_image.size(0), 0)[:3], 2)
+
+            sample = torch.cat([input_image_discretize.cpu(), tgt_prev.cpu(), input_skeleton[:,:3].cpu(), fake_img.cpu(), attn_image.cpu()], 3)
+            sample = torch.cat(torch.chunk(sample, input_image.size(0), 0)[:8], 2)
         return sample
-
-
 
     def test(self, data_loader, output_dir, current_iteration=-1):
         r"""inference function
@@ -260,6 +254,38 @@ class Trainer(BaseTrainer):
                 output_image.save(fullname)
         return None
 
+    def generate_fake_full_step(self, data):
+        net_G = self.net_G_ema.eval()
+        fake_image_steps = []
+        source_image, target_image = data['source_image'], data['target_image']
+        source_skeleton, target_skeleton = data['source_skeleton'], data['target_skeleton']
+        input_image = torch.cat((source_image, target_image), 0)
+        input_skeleton = torch.cat((target_skeleton, source_skeleton), 0)
+        gt_image = torch.cat((target_image, source_image), 0)
+
+        b, c, h, w = input_image.size()
+        tgt_prev = torch.randn_like(gt_image)
+        fake_image_steps.append(input_image.cpu())
+        fake_image_steps.append(input_skeleton[:,:3].cpu())
+        fake_image_steps.append(tgt_prev.cpu())
+        for step in range(self.opt.step_size) :
+            sampling_step = np.array([step] * b)
+            input_image_discretize, gt_image_discretize = self.discretized_dataset_sampling(input_image, gt_image, sampling_step)
+            with torch.no_grad() :
+                fake_img, _, _ = self.generate_fake(net_G, tgt_prev, input_skeleton, input_image, input_image_discretize, sampling_step)
+            fake_image_steps.append(fake_img.cpu())
+
+            tgt_prev = fake_img
+        # bone -> step0 -> step1 -> ... -> GT
+        fake_image_steps.append(gt_image.cpu())
+        fake_image_steps = torch.cat(fake_image_steps, -1)
+        fake_image_steps = torch.cat(torch.chunk(fake_image_steps, input_image.size(0), 0), 2)
+
+        return fake_image_steps, fake_img
+
+
+
+
     def generate_fake(self, net_G, tgt_prev, tgt_bone, input_image, input_image_discretize, step):
         b, c, h, w = input_image.size()
         device = input_image.device
@@ -268,7 +294,7 @@ class Trainer(BaseTrainer):
         next_pos = self.positional_encoding(step+1).view(b, 1, h, w).to(device)
 
         tgt_prev = torch.cat((tgt_prev+prev_pos, tgt_bone), 1)
-        input_image = torch.cat((input_image_discretize + next_pos, input_image), 1)
+        input_image = input_image_discretize + next_pos #torch.cat((input_image_discretize + next_pos, input_image), 1)
         output_dict = net_G(input_image, tgt_prev)
 
         fake_img, info = output_dict['fake_image'], output_dict['info']

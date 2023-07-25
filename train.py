@@ -45,7 +45,7 @@ if __name__ == '__main__':
     make_logging_dir(logdir, date_uid)
 
     wandb.login()
-    wandb.init(project="NTED", name=opt.name, settings=wandb.Settings(code_dir="."), resume=True)
+    wandb.init(project="NTED", name=opt.name, settings=wandb.Settings(code_dir="."))
 
     init_cudnn(opt.cudnn.deterministic, opt.cudnn.benchmark)
     # create a dataset
@@ -55,9 +55,13 @@ if __name__ == '__main__':
     net_G, net_D, net_G_ema, opt_G, opt_D, sch_G, sch_D \
         = get_model_optimizer_and_scheduler(opt)
 
-    trainer = get_trainer(opt, net_G, net_D, net_G_ema, \
-                          opt_G, opt_D, sch_G, sch_D, \
-                          train_dataset, val_dataset, wandb)
+    trainer = get_trainer(opt,
+                          net_G, net_D,
+                          net_G_ema,
+                          opt_G, opt_D,
+                          sch_G, sch_D,
+                          train_dataset, val_dataset,
+                          wandb)
 
     current_epoch, current_iteration = trainer.load_checkpoint(
         opt, args.which_iter)   
@@ -79,5 +83,6 @@ if __name__ == '__main__':
             if current_iteration >= opt.max_iter:
                 print('Done with training!!!')
                 break
+
         current_epoch += 1
         trainer.end_of_epoch(data, val_dataset, current_epoch, current_iteration)

@@ -40,6 +40,8 @@ class BaseTrainer(object):
         self.sch_G = sch_G
         self.sch_D = sch_D
         self.train_data_loader = train_data_loader
+        self.val_data_loader = val_data_loader
+        self.wandb = wandb
 
         self.criteria = nn.ModuleDict()
         self.weights = dict()
@@ -209,10 +211,20 @@ class BaseTrainer(object):
                                                      elapsed_epoch_time))
         self.time_epoch = elapsed_epoch_time
         self._end_of_epoch(data, current_epoch, current_iteration)
+
+        # plot validation
+        data_val = next(iter(val_dataset))
+        data_val = to_cuda(data_val)
+        fake_image_steps, fake_img = self.generate_fake_full_step(data_val)
+        fake_image_steps = (fake_image_steps + 1) / 2
+        fake_image_steps.clamp_(0, 1)
+        if self.opt.image_to_wandb:
+            self.wandb.log({'end_of_epoch': self.wandb.Image(fake_image_steps)})
+
         # Save everything to the checkpoint.
         if current_epoch >= self.opt.snapshot_save_start_epoch and \
                 current_epoch % self.opt.snapshot_save_epoch == 0:
-            self.save_image(self._get_save_path('image', 'jpg'), data)
+            # self.save_image(self._get_save_path('image', 'jpg'), data, 'end_of_epoch')
             self.save_checkpoint(current_epoch, current_iteration)
 
     def start_of_iteration(self, data, current_iteration):
@@ -251,17 +263,27 @@ class BaseTrainer(object):
         # Save everything to the checkpoint.
         if current_iteration >= self.opt.snapshot_save_start_iter and \
                 current_iteration % self.opt.snapshot_save_iter == 0:
-            self.save_image(self._get_save_path('image', 'jpg'), data)
+            self.save_image(self._get_save_path('image', 'jpg'), data, 'end_of_iteration')
             self.save_checkpoint(current_epoch, current_iteration)
         # Compute image to be saved.
         elif current_iteration % self.opt.image_save_iter == 0:
-            self.save_image(self._get_save_path('image', 'jpg'), data)
+            self.save_image(self._get_save_path('image', 'jpg'), data, 'end_of_iteration')
 
         if current_iteration % self.opt.logging_iter == 0:
-            self._write_tensorboard()
+            self._write_wandb()
             self._print_current_errors()
 
 
+    def _write_wandb(self):
+        log_dict = {}
+        for loss_name, losses in self.gen_losses.items():
+            log_dict['gen_update' + '/' + loss_name] = losses.detach().cpu().item()
+        for loss_name, losses in self.dis_losses.items():
+            log_dict['dis_update' + '/' + loss_name] = losses.detach().cpu().item()
+        log_dict['epoch'] = self.current_epoch
+        log_dict['iter']= self.current_iteration
+
+        self.wandb.log(log_dict)
     def _print_current_errors(self):
         epoch, iteration = self.current_epoch, self.current_iteration
         message = '(epoch: %d, iters: %d) ' % (epoch, iteration)
@@ -288,7 +310,7 @@ class BaseTrainer(object):
             self.meters[full_name].write(value)
             self.meters[full_name].flush(iteration)
 
-    def save_image(self, path, data):
+    def save_image(self, path, data, tag):
         self.net_G.eval()
         vis_images = self._get_visualizations(data)
         if is_master() and vis_images is not None:
@@ -299,8 +321,10 @@ class BaseTrainer(object):
             os.makedirs(os.path.dirname(path), exist_ok=True)
             image_grid = torchvision.utils.make_grid(
                 vis_images, nrow=1, padding=0, normalize=False)
-            if self.opt.trainer.image_to_tensorboard:
-                self.image_meter.write_image(image_grid, self.current_iteration)
+            if self.opt.image_to_wandb:
+                # self.image_meter.write_image(image_grid, self.current_iteration)
+                self.wandb.log({tag: self.wandb.Image(vis_images)})
+
             torchvision.utils.save_image(image_grid, path, nrow=1)
 
 

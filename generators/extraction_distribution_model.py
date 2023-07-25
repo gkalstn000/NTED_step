@@ -15,7 +15,7 @@ class Generator(nn.Module):
         super().__init__()
         self.size = size
         self.reference_encoder = Encoder(
-            size, 3+3, channels, num_labels, match_kernels, blur_kernel
+            size, 3, channels, num_labels, match_kernels, blur_kernel
         )
             
         self.skeleton_encoder = Encoder(

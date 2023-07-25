@@ -84,7 +84,7 @@ class Config(AttrDict):
         self.max_epoch = large_number
         self.max_iter = large_number
         self.logging_iter = 100
-        self.image_to_tensorboard=False
+        self.image_to_wandb=False
         self.which_iter = args.which_iter
         self.resume = not args.no_resume
 
@@ -127,7 +127,7 @@ class Config(AttrDict):
                                                 roots='',
                                                 batch_size=1))
         self.trainer = AttrDict(
-            image_to_tensorboard=False,
+            image_to_wandb=False,
             hparam_to_tensorboard=False)
 
         # Cudnn.

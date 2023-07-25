@@ -9,16 +9,6 @@
           </mappings>
         </serverdata>
       </paths>
-      <paths name="root@166.104.246.71:8088 password">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/root/nted" local="$PROJECT_DIR$" />
-          </mappings>
-          <excludedPaths>
-            <excludedPath path="/root/nted/dataset" />
-          </excludedPaths>
-        </serverdata>
-      </paths>
       <paths name="root@166.104.246.71:8089 password">
         <serverdata>
           <mappings>
@@ -29,18 +19,15 @@
           </excludedPaths>
         </serverdata>
       </paths>
-      <paths name="work@localhost:22222 key (2)">
+      <paths name="work@localhost:22222 key">
         <serverdata>
           <mappings>
             <mapping deploy="/home/work/msha/NTED" local="$PROJECT_DIR$" />
           </mappings>
-        </serverdata>
-      </paths>
-      <paths name="work@localhost:22222 key (3)">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/home/work/msha/NTED" local="$PROJECT_DIR$" />
-          </mappings>
+          <excludedPaths>
+            <excludedPath path="/home/work/msha/NTED/dataset" />
+            <excludedPath local="true" path="$PROJECT_DIR$/dataset" />
+          </excludedPaths>
         </serverdata>
       </paths>
     </serverData>
