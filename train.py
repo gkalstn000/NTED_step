@@ -45,7 +45,7 @@ if __name__ == '__main__':
     make_logging_dir(logdir, date_uid)
 
     wandb.login()
-    wandb.init(project="NTED", name=opt.name, settings=wandb.Settings(code_dir="."))
+    wandb.init(project="NTED", name=opt.name, settings=wandb.Settings(code_dir="."), resume=args.debug)
 
     init_cudnn(opt.cudnn.deterministic, opt.cudnn.benchmark)
     # create a dataset

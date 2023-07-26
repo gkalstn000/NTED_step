@@ -15,7 +15,9 @@
             <mapping deploy="/root/nted" local="$PROJECT_DIR$" />
           </mappings>
           <excludedPaths>
+            <excludedPath path="/root/nted/third_part" />
             <excludedPath path="/root/nted/dataset" />
+            <excludedPath path="/root/nted/wandb" />
           </excludedPaths>
         </serverdata>
       </paths>
@@ -27,6 +29,9 @@
           <excludedPaths>
             <excludedPath path="/home/work/msha/NTED/dataset" />
             <excludedPath local="true" path="$PROJECT_DIR$/dataset" />
+            <excludedPath path="/home/work/msha/NTED/wandb" />
+            <excludedPath path="/home/work/msha/NTED/result" />
+            <excludedPath path="/home/work/msha/NTED/third_part" />
           </excludedPaths>
         </serverdata>
       </paths>
