@@ -32,7 +32,7 @@ if __name__ == '__main__':
     set_random_seed(args.seed)
     opt = Config(args.config, args, is_train=True)
     if args.debug:
-        opt.data.train.batch_size=2
+        opt.data.train.batch_size=6
 
 
     if not args.single_gpu:

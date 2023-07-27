@@ -35,7 +35,7 @@ dis_optimizer:
 trainer:
     type: trainers.extraction_distribution_trainer::Trainer
     gan_mode: style_gan2
-    gan_start_iteration: 20000
+    gan_start_iteration: 0
     face_crop_method: util.face_crop::crop_face_from_output
     d_reg_every: 16
     r1: 10
@@ -109,7 +109,7 @@ data:
     resolution: 256
     scale_param: 0.1
     train:
-      batch_size: 8          # real_batch_size: 4 * 2 (source-->target & target --> source) * 2 (GPUs) = 16
+      batch_size: 4          # real_batch_size: 4 * 2 (source-->target & target --> source) * 2 (GPUs) = 16
       distributed: True
     val:
       batch_size: 2

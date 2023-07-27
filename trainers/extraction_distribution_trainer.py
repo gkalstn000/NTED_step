@@ -118,10 +118,10 @@ class Trainer(BaseTrainer):
         self.calculate_D_loss(fake_img, gt_image_discretize, step)
 
     def calculate_G_loss(self, fake_img, gt_image, input_image, data, info, step):
-        last_index = step == self.opt.step_size - 1
+        first_index = step == 0
 
         if self.cal_gan_flag:
-            fake_pred = self.net_D(fake_img[last_index])
+            fake_pred = self.net_D(fake_img[first_index])
             g_loss = self.criteria['gan'](fake_pred, t_real=True, dis_update=False)
             self.gen_losses["gan"] = g_loss
         else:
@@ -150,11 +150,11 @@ class Trainer(BaseTrainer):
         self.opt_G.step()
 
     def calculate_D_loss(self, fake_img, gt_image, step):
-        last_index = step == self.opt.step_size - 1
+        first_index = step == 0
 
         if self.cal_gan_flag:
-            fake_pred = self.net_D(fake_img.detach()[last_index])
-            real_pred = self.net_D(gt_image[last_index])
+            fake_pred = self.net_D(fake_img.detach()[first_index])
+            real_pred = self.net_D(gt_image[first_index])
             fake_loss = self.criteria['gan'](fake_pred, t_real=False, dis_update=True)
             real_loss = self.criteria['gan'](real_pred, t_real=True,  dis_update=True)
             d_loss = fake_loss + real_loss
@@ -167,7 +167,7 @@ class Trainer(BaseTrainer):
             self.opt_D.step()
 
             if self.d_regularize_flag:
-                gt_subset = gt_image[last_index]
+                gt_subset = gt_image[first_index]
                 gt_subset.requires_grad = True
                 real_img_aug = gt_subset
                 real_pred = self.net_D(real_img_aug)
@@ -224,7 +224,7 @@ class Trainer(BaseTrainer):
 
             attn_image = attn2image(info['extraction_softmax'], info['semantic_distribution'], input_image_discretize)
 
-            sample = torch.cat([input_image_discretize.cpu(), tgt_prev.cpu(), input_skeleton[:,:3].cpu(), fake_img.cpu(), attn_image.cpu()], 3)
+            sample = torch.cat([input_image_discretize.cpu(), tgt_prev.cpu(), input_skeleton[:,:3].cpu(), fake_img.cpu(), gt_image_discretize.cpu(), attn_image.cpu()], 3)
             sample = torch.cat(torch.chunk(sample, input_image.size(0), 0)[:8], 2)
         return sample
 
@@ -310,12 +310,12 @@ class Trainer(BaseTrainer):
     def step_sampling(self, b):
         step_size = self.opt.step_size
         sample_step = random.choices(population=range(step_size), weights=[0.5] + [0.5 / (step_size - 1)] * (step_size - 1), k=b)
-        num_last = (np.array(sample_step) == step_size - 1).sum()
+        num_first = (np.array(sample_step) == 0).sum()
 
-        if (not (num_last <= self.stddev_group or num_last % self.stddev_group == 0)) or num_last == 0 :
-            sample_step.sort(reverse=True)
-            change_values = self.stddev_group - num_last % self.stddev_group
-            sample_step[num_last : num_last + change_values] = [step_size - 1] * change_values
+        if (not (num_first <= self.stddev_group or num_first % self.stddev_group == 0)) or num_first == 0 :
+            sample_step.sort(reverse=False)
+            change_nums = self.stddev_group - num_first % self.stddev_group
+            sample_step[num_first : num_first + change_nums] = [0] * change_nums
             random.shuffle(sample_step)
 
         return np.array(sample_step)
