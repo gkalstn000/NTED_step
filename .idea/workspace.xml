@@ -4,16 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc8fcedf-830e-4f2c-8e18-f5d676cd36d7" name="Changes" comment="학습 시작 안되는 버그">
-      <change afterPath="$PROJECT_DIR$/generators/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/loss/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Neural-Texture-Extraction-Distribution.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Neural-Texture-Extraction-Distribution.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="fc8fcedf-830e-4f2c-8e18-f5d676cd36d7" name="Changes" comment="버그 수정 완료&#10;./cache 파일 새로 생성해야함">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/fashion_256.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/fashion_256.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/op/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/op/__init__.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -201,7 +193,7 @@
       <workItem from="1690516554635" duration="3131000" />
       <workItem from="1690520050821" duration="2946000" />
       <workItem from="1690523070956" duration="282000" />
-      <workItem from="1690523413289" duration="7166000" />
+      <workItem from="1690523413289" duration="8289000" />
     </task>
     <task id="LOCAL-00001" summary="우선 simple step 방식">
       <option name="closed" value="true" />
@@ -219,7 +211,15 @@
       <option name="project" value="LOCAL" />
       <updated>1690268446024</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="버그 수정 완료&#10;./cache 파일 새로 생성해야함">
+      <option name="closed" value="true" />
+      <created>1690855141089</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1690855141089</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -239,7 +239,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="우선 simple step 방식" />
     <MESSAGE value="wandb 수정&#10;dataloader train/test 무조건 shuffle&#10;end_of_iteration&#10;end_of_epoch&#10;&#10;full generation" />
-    <option name="LAST_COMMIT_MESSAGE" value="wandb 수정&#10;dataloader train/test 무조건 shuffle&#10;end_of_iteration&#10;end_of_epoch&#10;&#10;full generation" />
+    <MESSAGE value="버그 수정 완료&#10;./cache 파일 새로 생성해야함" />
+    <option name="LAST_COMMIT_MESSAGE" value="버그 수정 완료&#10;./cache 파일 새로 생성해야함" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -253,11 +254,6 @@
           <url>file://$PROJECT_DIR$/trainers/base.py</url>
           <line>220</line>
           <option name="timeStamp" value="67" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/trainers/base.py</url>
-          <line>256</line>
-          <option name="timeStamp" value="70" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/data/__init__.py</url>
