@@ -109,7 +109,7 @@ data:
     resolution: 256
     scale_param: 0.1
     train:
-      batch_size: 4          # real_batch_size: 4 * 2 (source-->target & target --> source) * 2 (GPUs) = 16
+      batch_size: 16          # real_batch_size: 4 * 2 (source-->target & target --> source) * 2 (GPUs) = 16
       distributed: True
     val:
       batch_size: 2

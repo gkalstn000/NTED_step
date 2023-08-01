@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="work@localhost:22222 agent" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="work@localhost:22222 agent (2)" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
       <paths name="minsu@166.104.246.71:7003 password (4)">
         <serverdata>
@@ -27,11 +27,23 @@
             <mapping deploy="/home/work/msha/NTED" local="$PROJECT_DIR$" />
           </mappings>
           <excludedPaths>
+            <excludedPath path="/home/work/msha/NTED/dataset" />
+            <excludedPath path="/home/work/msha/NTED/third_part" />
             <excludedPath path="/home/work/msha/NTED/wandb" />
-            <excludedPath path="/home/work/msha/NTED/datasset" />
+            <excludedPath local="true" path="$PROJECT_DIR$/dataset" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="work@localhost:22222 agent (2)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/work/msha/NTED" local="$PROJECT_DIR$" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath path="/home/work/msha/NTED/dataset" />
+            <excludedPath path="/home/work/msha/NTED/wandb" />
             <excludedPath path="/home/work/msha/NTED/third_part" />
             <excludedPath local="true" path="$PROJECT_DIR$/dataset" />
-            <excludedPath local="true" path="$PROJECT_DIR$/third_part" />
           </excludedPaths>
         </serverdata>
       </paths>
