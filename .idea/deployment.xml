@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="work@localhost:22222 agent (2)" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="root@166.104.246.71:8089 password" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
       <paths name="minsu@166.104.246.71:7003 password (4)">
         <serverdata>
@@ -18,6 +18,7 @@
             <excludedPath path="/root/nted/third_part" />
             <excludedPath path="/root/nted/dataset" />
             <excludedPath path="/root/nted/wandb" />
+            <excludedPath path="/root/nted/result" />
           </excludedPaths>
         </serverdata>
       </paths>

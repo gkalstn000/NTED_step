@@ -4,7 +4,7 @@ snapshot_save_iter: 50000
 snapshot_save_epoch: 20
 snapshot_save_start_iter: 20000
 snapshot_save_start_epoch: 20
-image_save_iter: 5000
+image_save_iter: 1 #5000
 max_epoch: 200
 logging_iter: 100
 step_size: 5
@@ -104,12 +104,12 @@ data:
     type: data.fashion_data::Dataset
     preprocess_mode: resize_and_crop
     path: ./dataset/deepfashion
-    num_workers: 8
+    num_workers: 4
     sub_path: 256-176
     resolution: 256
     scale_param: 0.1
     train:
-      batch_size: 16          # real_batch_size: 4 * 2 (source-->target & target --> source) * 2 (GPUs) = 16
+      batch_size: 2          # real_batch_size: 4 * 2 (source-->target & target --> source) * 2 (GPUs) = 16
       distributed: True
     val:
       batch_size: 2

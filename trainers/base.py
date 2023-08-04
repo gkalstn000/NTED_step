@@ -213,15 +213,11 @@ class BaseTrainer(object):
         self._end_of_epoch(data, current_epoch, current_iteration)
 
         # plot validation
-        data_val = next(iter(val_dataset))
-        data_val = to_cuda(data_val)
-        fake_image_steps, fake_img = self.generate_fake_full_step(data_val)
-        fake_image_steps = (fake_image_steps + 1) / 2
-        fake_image_steps.clamp_(0, 1)
         if self.opt.image_to_wandb:
-            self.wandb.log({'end_of_epoch': self.wandb.Image(fake_image_steps)})
-            torchvision.utils.save_image(fake_image_steps, self._get_save_path('image', 'jpg'), nrow=1)
-
+            for it, data in enumerate(val_dataset) :
+                data = to_cuda(data)
+                self.save_image(self._get_save_path('image', 'jpg'), data, 'end_of_epoch')
+                break
         # Save everything to the checkpoint.
         if current_epoch >= self.opt.snapshot_save_start_epoch and \
                 current_epoch % self.opt.snapshot_save_epoch == 0:
@@ -312,7 +308,6 @@ class BaseTrainer(object):
             self.meters[full_name].flush(iteration)
 
     def save_image(self, path, data, tag):
-        self.net_G.eval()
         vis_images = self._get_visualizations(data)
         if is_master() and vis_images is not None:
             # vis_images = torch.cat(vis_images, dim=3).float()

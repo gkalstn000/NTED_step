@@ -4,8 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc8fcedf-830e-4f2c-8e18-f5d676cd36d7" name="Changes" comment="버그 수정 완료&#10;./cache 파일 새로 생성해야함">
+    <list default="true" id="fc8fcedf-830e-4f2c-8e18-f5d676cd36d7" name="Changes" comment=".">
+      <change beforePath="$PROJECT_DIR$/.idea/Neural-Texture-Extraction-Distribution.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Neural-Texture-Extraction-Distribution.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/fashion_256.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/fashion_256.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trainers/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/trainers/base.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trainers/extraction_distribution_trainer.py" beforeDir="false" afterPath="$PROJECT_DIR$/trainers/extraction_distribution_trainer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,7 +22,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="step_simple" />
+        <entry key="$PROJECT_DIR$" value="step_sample_initganloss" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -47,7 +54,7 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Python.train_nipa">
+  <component name="RunManager" selected="Python.train">
     <configuration name="data_prepare" type="PythonConfigurationType" factoryName="Python">
       <module name="Neural-Texture-Extraction-Distribution" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -130,7 +137,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="torch.distributed.launch" />
-      <option name="PARAMETERS" value="--nproc_per_node=1 --master_port 46632 train.py --config ./config/fashion_256.yaml --name red_test" />
+      <option name="PARAMETERS" value="--nproc_per_node=1 --master_port 46632 train.py --config ./config/fashion_256.yaml --name red_test --debug" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="true" />
@@ -193,7 +200,7 @@
       <workItem from="1690516554635" duration="3131000" />
       <workItem from="1690520050821" duration="2946000" />
       <workItem from="1690523070956" duration="282000" />
-      <workItem from="1690523413289" duration="8289000" />
+      <workItem from="1690523413289" duration="44895000" />
     </task>
     <task id="LOCAL-00001" summary="우선 simple step 방식">
       <option name="closed" value="true" />
@@ -219,7 +226,15 @@
       <option name="project" value="LOCAL" />
       <updated>1690855141089</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary=".">
+      <option name="closed" value="true" />
+      <created>1690856139892</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1690856139892</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -240,34 +255,30 @@
     <MESSAGE value="우선 simple step 방식" />
     <MESSAGE value="wandb 수정&#10;dataloader train/test 무조건 shuffle&#10;end_of_iteration&#10;end_of_epoch&#10;&#10;full generation" />
     <MESSAGE value="버그 수정 완료&#10;./cache 파일 새로 생성해야함" />
-    <option name="LAST_COMMIT_MESSAGE" value="버그 수정 완료&#10;./cache 파일 새로 생성해야함" />
+    <MESSAGE value="." />
+    <option name="LAST_COMMIT_MESSAGE" value="." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/trainers/extraction_distribution_trainer.py</url>
-          <line>283</line>
-          <option name="timeStamp" value="65" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/trainers/base.py</url>
-          <line>220</line>
-          <option name="timeStamp" value="67" />
+          <line>216</line>
+          <option name="timeStamp" value="112" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/data/__init__.py</url>
-          <line>51</line>
-          <option name="timeStamp" value="75" />
+          <url>file://$PROJECT_DIR$/trainers/extraction_distribution_trainer.py</url>
+          <line>226</line>
+          <option name="timeStamp" value="117" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$train_nipa.coverage" NAME="train_nipa Coverage Results" MODIFIED="1690528056721" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$train_nipa.coverage" NAME="train_nipa Coverage Results" MODIFIED="1690966386486" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$data_prepare.coverage" NAME="data_prepare Coverage Results" MODIFIED="1689498890141" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$import_debug.coverage" NAME="import debug Coverage Results" MODIFIED="1690519697270" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$demo.coverage" NAME="demo Coverage Results" MODIFIED="1689323132194" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$train.coverage" NAME="train Coverage Results" MODIFIED="1690528020737" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$train.coverage" NAME="train Coverage Results" MODIFIED="1691129968122" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
