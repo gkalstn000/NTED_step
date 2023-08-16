@@ -4,7 +4,7 @@ snapshot_save_iter: 50000
 snapshot_save_epoch: 20
 snapshot_save_start_iter: 20000
 snapshot_save_start_epoch: 20
-image_save_iter: 1 #5000
+image_save_iter: 5000
 max_epoch: 200
 logging_iter: 100
 step_size: 5
@@ -44,6 +44,7 @@ trainer:
       weight_gan: 1.5
       weight_attn_rec: 15
       weight_face: 1
+      weight_step: 1.5
     attn_weights: 
       8: 1 
       16: 1

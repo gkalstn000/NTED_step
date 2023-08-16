@@ -249,7 +249,7 @@ class BaseTrainer(object):
         # Accumulate time
         self.elapsed_iteration_time += time.time() - self.start_iteration_time
         # Logging.
-        if current_iteration % self.opt.logging_iter == 0:
+        if current_iteration % self.opt.logging_iter < self.opt.data.train.batch_size * 2:
             ave_t = self.elapsed_iteration_time / self.opt.logging_iter
             self.time_iteration = ave_t
             print('Iteration: {}, average iter time: '
@@ -259,14 +259,14 @@ class BaseTrainer(object):
         self._end_of_iteration(data, current_epoch, current_iteration)
         # Save everything to the checkpoint.
         if current_iteration >= self.opt.snapshot_save_start_iter and \
-                current_iteration % self.opt.snapshot_save_iter == 0:
+                current_iteration % self.opt.snapshot_save_iter < self.opt.data.train.batch_size * 2:
             self.save_image(self._get_save_path('image', 'jpg'), data, 'end_of_iteration')
             self.save_checkpoint(current_epoch, current_iteration)
         # Compute image to be saved.
-        elif current_iteration % self.opt.image_save_iter == 0:
+        elif current_iteration % self.opt.image_save_iter < self.opt.data.train.batch_size * 2:
             self.save_image(self._get_save_path('image', 'jpg'), data, 'end_of_iteration')
 
-        if current_iteration % self.opt.logging_iter == 0:
+        if current_iteration % self.opt.logging_iter < self.opt.data.train.batch_size * 2:
             self._write_wandb()
             self._print_current_errors()
 

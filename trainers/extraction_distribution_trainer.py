@@ -72,7 +72,12 @@ class Trainer(BaseTrainer):
         self._assign_criteria(
             'gan',
             GANLoss(opt.trainer.gan_mode).to('cuda'),
-            opt.trainer.loss_weight.weight_gan)   
+            opt.trainer.loss_weight.weight_gan)
+
+        self._assign_criteria(
+            'step',
+            torch.nn.NLLLoss(),
+            opt.trainer.loss_weight.weight_step)
         
         if getattr(opt.trainer.loss_weight, 'weight_face', 0) != 0:
             self._assign_criteria(
@@ -119,14 +124,18 @@ class Trainer(BaseTrainer):
         self.calculate_D_loss(fake_img, gt_image_discretize, step)
 
     def calculate_G_loss(self, fake_img, gt_image, input_image, data, info, step):
-        last_index = step == self.opt.step_size - 1
 
         if self.cal_gan_flag :
-            fake_pred = self.net_D(fake_img[last_index])
+            fake_pred, step_pred = self.net_D(fake_img)
             g_loss = self.criteria['gan'](fake_pred, t_real=True, dis_update=False)
+            step_true = torch.tensor(step, device='cuda').long()
+            step_loss = self.criteria['step'](step_pred, step_true)
             self.gen_losses["gan"] = g_loss
+            self.gen_losses["step"] = step_loss
+
         else:
             self.gen_losses["gan"] = torch.tensor(0.0, device='cuda')
+            self.gen_losses["step"] = torch.tensor(0.0, device='cuda')
 
         self.gen_losses["perceptual"] = self.criteria['perceptual'](fake_img, gt_image)
         self.gen_losses['attn_rec'] = self.criteria['attn_rec'](info, input_image, gt_image)
@@ -151,18 +160,22 @@ class Trainer(BaseTrainer):
         self.opt_G.step()
 
     def calculate_D_loss(self, fake_img, gt_image, step):
-        last_index = step == self.opt.step_size - 1
-        fake_img = fake_img[last_index]
-        gt_image = gt_image[last_index]
+
         if self.cal_gan_flag:
-            fake_pred = self.net_D(fake_img.detach())
-            real_pred = self.net_D(gt_image)
+            fake_pred, fake_step_pred = self.net_D(fake_img.detach())
+            real_pred, real_step_pred = self.net_D(gt_image)
+            step_true = torch.tensor(step, device='cuda').long()
             fake_loss = self.criteria['gan'](fake_pred, t_real=False, dis_update=True)
             real_loss = self.criteria['gan'](real_pred, t_real=True,  dis_update=True)
-            d_loss = fake_loss + real_loss
+            fake_step = self.criteria['step'](fake_step_pred, step_true)
+            real_step = self.criteria['step'](real_step_pred, step_true)
+
+            d_loss = fake_loss + real_loss + fake_step + real_step
             self.dis_losses["d"] = d_loss
             self.dis_losses["real_score"] = real_pred.mean()
             self.dis_losses["fake_score"] = fake_pred.mean()
+            self.dis_losses['real_step'] = real_step
+            self.dis_losses['fake_step'] = fake_step
 
             self.net_D.zero_grad()
             d_loss.backward()
@@ -172,8 +185,9 @@ class Trainer(BaseTrainer):
                 gt_subset = gt_image
                 gt_subset.requires_grad = True
                 real_img_aug = gt_subset
-                real_pred = self.net_D(real_img_aug)
-                r1_loss = self.d_r1_loss(real_pred, gt_subset)
+                real_pred, step_pred = self.net_D(real_img_aug)
+
+                r1_loss = self.d_r1_loss(real_pred, gt_subset) + self.criteria['step'](step_pred, step_true) * 0
 
                 self.net_D.zero_grad()
                 (self.opt.trainer.r1 / 2 * r1_loss * self.opt.trainer.d_reg_every + 0 * real_pred[0]).backward()
@@ -184,7 +198,7 @@ class Trainer(BaseTrainer):
 
     def d_r1_loss(self, real_pred, real_img):
         grad_real, = autograd.grad(
-            outputs=real_pred.sum(), inputs=real_img, create_graph=True
+            outputs=real_pred.sum(), inputs=real_img, create_graph=True, allow_unused=True
         )
         grad_penalty = grad_real.pow(2).reshape(grad_real.shape[0], -1).sum(1).mean()
 
@@ -262,12 +276,14 @@ class Trainer(BaseTrainer):
 
         source_image, target_image = data['source_image'], data['target_image']
         source_skeleton, target_skeleton = data['source_skeleton'], data['target_skeleton']
+
         input_image = torch.cat((source_image, target_image), 0)
         input_skeleton = torch.cat((target_skeleton, source_skeleton), 0)
         gt_image = torch.cat((target_image, source_image), 0)
 
         b, c, h, w = input_image.size()
-        tgt_prev = torch.randn_like(gt_image)
+        z = torch.randn_like(gt_image)
+        tgt_prev = z
         for step in range(self.opt.step_size) :
             sampling_step = np.array([step] * b)
             input_image_discretize, gt_image_discretize = self.discretized_dataset_sampling(input_image, gt_image, sampling_step)
@@ -297,7 +313,7 @@ class Trainer(BaseTrainer):
                        'input_skeleton': input_skeleton,
                        'steps': steps,
                        'info_steps': info_steps,
-                       'tgt_prev': tgt_prev.cpu()}
+                       'tgt_prev': z.cpu()}
 
         return output_dict
 

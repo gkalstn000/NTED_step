@@ -45,7 +45,7 @@ if __name__ == '__main__':
     make_logging_dir(logdir, date_uid)
 
     wandb.login()
-    wandb.init(project="NTED", name=opt.name, settings=wandb.Settings(code_dir="."), resume=args.debug)
+    wandb.init(project="NTED", name=opt.name, settings=wandb.Settings(code_dir="."), resume=False)
 
     init_cudnn(opt.cudnn.deterministic, opt.cudnn.benchmark)
     # create a dataset
@@ -77,7 +77,8 @@ if __name__ == '__main__':
         for it, data in enumerate(train_dataset):
             data = trainer.start_of_iteration(data, current_iteration)
             trainer.optimize_parameters(data)
-            current_iteration += 1
+            current_iteration += opt.data.train.batch_size * 2
+            # print(current_iteration)
             trainer.end_of_iteration(data, current_epoch, current_iteration)
  
             if current_iteration >= opt.max_iter:

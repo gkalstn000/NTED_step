@@ -2,6 +2,7 @@ import math
 
 import torch
 from torch import nn
+import torch.nn.functional as F
 
 from generators.base_function import EqualLinear, ResBlock, ConvLayer
 
@@ -28,6 +29,14 @@ class Discriminator(nn.Module):
         self.stddev_group = 4
         self.stddev_feat = 1
 
+        self.step_size = 5
+        h_ = 256 // 2**(log_size-2)
+        w_ = 176 // 2**(log_size-2)
+        self.fc_step = nn.Sequential(nn.Linear((in_channel + 1) * h_ * w_, 256),
+                                     nn.ReLU(),
+                                     nn.Linear(256, self.step_size),
+                                     )
+
         self.final_conv = ConvLayer(in_channel + 1, channels[4], 3)
         if is_square_image:
             self.final_linear = nn.Sequential(
@@ -38,7 +47,7 @@ class Discriminator(nn.Module):
             self.final_linear = nn.Sequential(
                 EqualLinear(channels[4] * 4 * 2, channels[4], activation="fused_lrelu"),
                 EqualLinear(channels[4], 1),
-            ) 
+            )
 
     def forward(self, input):
         out = self.convs(input)
@@ -50,13 +59,15 @@ class Discriminator(nn.Module):
         stddev = torch.sqrt(stddev.var(0, unbiased=False) + 1e-8)
         stddev = stddev.mean([2, 3, 4], keepdims=True).squeeze(2)
         stddev = stddev.repeat(group, 1, height, width)
-        out = torch.cat([out, stddev], 1)
+        out = torch.cat([out, stddev], 1) # [24, 513, 4, 2]
+
+        step_pred = self.fc_step(out.view(batch, -1))
 
         out = self.final_conv(out)
         out = out.view(batch, -1)
         out = self.final_linear(out)
 
-        return out
+        return out, F.log_softmax(step_pred, 1)
 
 
 
