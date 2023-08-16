@@ -6,10 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="fc8fcedf-830e-4f2c-8e18-f5d676cd36d7" name="Changes" comment=".">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/fashion_256.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/fashion_256.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/generators/discriminator.py" beforeDir="false" afterPath="$PROJECT_DIR$/generators/discriminator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trainers/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/trainers/base.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/trainers/extraction_distribution_trainer.py" beforeDir="false" afterPath="$PROJECT_DIR$/trainers/extraction_distribution_trainer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -135,7 +131,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="torch.distributed.launch" />
-      <option name="PARAMETERS" value="--nproc_per_node=1 --master_port 46632 train.py --config ./config/fashion_256.yaml --name red_test" />
+      <option name="PARAMETERS" value="--nproc_per_node=1 --master_port 15123 train.py --config ./config/fashion_256.yaml --name red_test" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="true" />
@@ -261,13 +257,23 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/trainers/extraction_distribution_trainer.py</url>
-          <line>241</line>
+          <line>242</line>
           <option name="timeStamp" value="138" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/util/face_crop.py</url>
+          <line>32</line>
+          <option name="timeStamp" value="150" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/trainers/extraction_distribution_trainer.py</url>
-          <line>202</line>
-          <option name="timeStamp" value="147" />
+          <line>146</line>
+          <option name="timeStamp" value="151" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/train.py</url>
+          <line>47</line>
+          <option name="timeStamp" value="153" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -278,6 +284,6 @@
     <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$data_prepare.coverage" NAME="data_prepare Coverage Results" MODIFIED="1689498890141" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$import_debug.coverage" NAME="import debug Coverage Results" MODIFIED="1690519697270" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$demo.coverage" NAME="demo Coverage Results" MODIFIED="1689323132194" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$train.coverage" NAME="train Coverage Results" MODIFIED="1692017368602" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$train.coverage" NAME="train Coverage Results" MODIFIED="1692166654567" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

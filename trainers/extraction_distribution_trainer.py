@@ -143,6 +143,7 @@ class Trainer(BaseTrainer):
         if 'target_face_center' in data and 'face' in self.criteria:
             source_face_center, target_face_center  = data['source_face_center'], data['target_face_center']
             target_face_center = torch.cat((target_face_center, source_face_center), 0)
+            target_face_center = torch.cat([target_face_center for _ in range(self.opt.step_size)], 0)
             self.gen_losses['face'] = self.criteria['face'](
                 self.crop_func(fake_img,
                                target_face_center),
