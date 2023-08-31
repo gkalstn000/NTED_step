@@ -29,7 +29,7 @@ class Discriminator(nn.Module):
         self.stddev_group = 4
         self.stddev_feat = 1
 
-        self.step_size = 5
+        self.step_size = 10
         h_ = 256 // 2**(log_size-2)
         w_ = 176 // 2**(log_size-2)
         self.fc_step = nn.Sequential(nn.Linear((in_channel + 1) * h_ * w_, 256),

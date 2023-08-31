@@ -97,6 +97,7 @@ class EncoderLayer(nn.Sequential):
             )
 
         self.activate = FusedLeakyReLU(out_channel, bias=bias) if activate else None
+        # self.norm = normalization(out_channel)
         self.use_extraction = use_extraction
         if self.use_extraction:
             self.extraction_operations = nn.ModuleList()
@@ -113,6 +114,7 @@ class EncoderLayer(nn.Sequential):
         out = self.blur(input) if self.blur is not None else input
         out = self.conv(out) 
         out = self.activate(out) if self.activate is not None else out
+        # out = self.norm(out)
         if self.use_extraction:
             for extraction_operation in self.extraction_operations:
                 extraction_operation(out, recoder)
@@ -166,6 +168,7 @@ class DecoderLayer(nn.Module):
             match_kernel=match_kernel
         ) if use_distribution else None
         self.activate = FusedLeakyReLU(out_channel, bias=bias) if activate else None
+        # self.norm = normalization(out_channel)
         self.use_distribution = use_distribution
 
     def forward(self, input, neural_texture=None, recoder=None):
@@ -176,7 +179,7 @@ class DecoderLayer(nn.Module):
             out = (out + out_attn) / math.sqrt(2)     
 
         out = self.activate(out.contiguous()) if self.activate is not None else out
-        
+        # out = self.norm(out)
         return out        
 
 class EqualConv2d(nn.Module):
@@ -425,3 +428,15 @@ def make_kernel(k):
     k /= k.sum()
 
     return k
+
+def normalization(channels):
+    """
+    Make a standard normalization layer.
+
+    :param channels: number of input channels.
+    :return: an nn.Module for normalization.
+    """
+    return GroupNorm32(min(32, channels), channels)
+class GroupNorm32(nn.GroupNorm):
+    def forward(self, x):
+        return super().forward(x.float()).type(x.dtype)

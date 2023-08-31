@@ -2,7 +2,14 @@ import functools
 
 import torch
 import torch.distributed as dist
-
+def is_main_process():
+    try:
+        if dist.get_rank()==0:
+            return True
+        else:
+            return False
+    except:
+        return True
 def init_dist(local_rank, backend='nccl', **kwargs):
     r"""Initialize distributed training"""
     if dist.is_available():

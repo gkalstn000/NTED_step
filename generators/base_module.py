@@ -19,6 +19,7 @@ class Encoder(nn.Module):
         super().__init__()
         self.first = EncoderLayer(input_dim, channels[size], 1)
         self.convs = nn.ModuleList()
+        # self.fcs = nn.ModuleList()
 
         log_size = int(math.log(size, 2))
         self.log_size = log_size
@@ -39,14 +40,17 @@ class Encoder(nn.Module):
                 num_label=num_label,
                 match_kernel=match_kernel
                 )
+            # fc_time = FC_time(out_channel)
 
             self.convs.append(conv)
+            # self.fcs.append(fc_time)
             in_channel = out_channel
 
     def forward(self, input, recoder=None):
         out = self.first(input)
         for layer in self.convs:
             out = layer(out, recoder)
+            # out = apply_conditions(out, fc_time(time_emb))
         return out
 
 class Decoder(nn.Module):
@@ -84,7 +88,9 @@ class Decoder(nn.Module):
 
             up = nn.Module()   
             up.conv0 = base_layer(in_channel=in_channel, upsample=upsample)
+            # up.fc_time0 = FC_time(out_channel)
             up.conv1 = base_layer(in_channel=out_channel, upsample=False)
+            # up.fc_time1 = FC_time(out_channel)
             up.to_rgb = ToRGB(out_channel, upsample=upsample)
             self.convs.append(up)
             in_channel = out_channel
@@ -102,22 +108,37 @@ class Decoder(nn.Module):
             else:
                 neural_texture_conv0, neural_texture_conv1 = None, None
             out = up.conv0(out, neural_texture=neural_texture_conv0, recoder=recoder)
+            # out = apply_conditions(out, up.fc_time0(time_emb))
             out = up.conv1(out, neural_texture=neural_texture_conv1, recoder=recoder)
+            # out = apply_conditions(out, up.fc_time1(time_emb))
             skip = up.to_rgb(out, skip)
         image = skip
         return image
 
-class PositionalEncoding(nn.Module):
-    def __init__(self, d_model, max_len=5000):
-        super(PositionalEncoding, self).__init__()
 
-        pe = torch.zeros(max_len, d_model)
-        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
-        pe[:, 0::2] = torch.sin(position * div_term)
-        pe[:, 1::2] = torch.cos(position * div_term)
-        pe = pe.unsqueeze(0).transpose(0, 1)
-        self.register_buffer('pe', pe)
+class FC_time(nn.Module) :
+    def __init__(self, out_channel):
+        super().__init__()
+        self.fc_layer = nn.Sequential(nn.Linear(256, out_channel * 2),
+                                 nn.SiLU(),
+                                 nn.Linear(out_channel * 2, out_channel * 2), )
+    def forward(self, time_emb):
+        return self.fc_layer(time_emb)
 
-    def forward(self, step):
-        return self.pe[step]
+def apply_conditions(h, emb=None):
+    """
+    apply conditions on the feature maps
+
+    Args:
+        emb: time conditional (ready to scale + shift)
+        cond: encoder's conditional (read to scale + shift)
+    """
+
+    while len(emb.shape) < len(h.shape):
+        emb = emb[..., None]
+
+    scale, shift = torch.chunk(emb, 2, dim=1)
+    h = h * (1 + scale)
+    h = h + shift
+
+    return h

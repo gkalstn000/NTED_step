@@ -1,11 +1,11 @@
 import argparse
-
+import os
 import data as Dataset
 import wandb
 from config import Config
 from util.logging import init_logging, make_logging_dir
 from util.cudnn import init_cudnn
-from util.distributed import init_dist
+from util.distributed import init_dist, is_main_process
 from util.distributed import master_only_print as print
 from util.trainer import get_model_optimizer_and_scheduler, set_random_seed, get_trainer
 
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     set_random_seed(args.seed)
     opt = Config(args.config, args, is_train=True)
     if args.debug:
-        opt.data.train.batch_size=2
+        opt.image_save_iter=2
 
 
     if not args.single_gpu:
@@ -44,8 +44,13 @@ if __name__ == '__main__':
     opt.logdir = logdir
     make_logging_dir(logdir, date_uid)
 
-    wandb.login()
-    wandb.init(project="NTED", name=opt.name, settings=wandb.Settings(code_dir="."), resume=False)
+    if args.debug :
+        resume = 'auto'
+    elif os.path.exists(os.path.join(opt.logdir, 'latest_checkpoint.txt')) :
+        resume = 'auto'
+    else :
+        resume = False
+    wandb.init(project="NTED", name=opt.name, settings=wandb.Settings(code_dir="."), resume=resume)
 
     init_cudnn(opt.cudnn.deterministic, opt.cudnn.benchmark)
     # create a dataset
@@ -84,6 +89,6 @@ if __name__ == '__main__':
             if current_iteration >= opt.max_iter:
                 print('Done with training!!!')
                 break
-
+            if args.debug : break
         current_epoch += 1
-        trainer.end_of_epoch(data, val_dataset, current_epoch, current_iteration)
+        trainer.end_of_epoch(None, val_dataset, current_epoch, current_iteration)

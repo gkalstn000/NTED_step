@@ -216,7 +216,7 @@ class BaseTrainer(object):
         if self.opt.image_to_wandb:
             for it, data in enumerate(val_dataset) :
                 data = to_cuda(data)
-                self.save_image(self._get_save_path('image', 'jpg'), data, 'end_of_epoch')
+                self.save_image(self._get_save_path('image', 'jpg'), data, 'end_of_epoch', True)
                 break
         # Save everything to the checkpoint.
         if current_epoch >= self.opt.snapshot_save_start_epoch and \
@@ -260,11 +260,11 @@ class BaseTrainer(object):
         # Save everything to the checkpoint.
         if current_iteration >= self.opt.snapshot_save_start_iter and \
                 current_iteration % self.opt.snapshot_save_iter < self.opt.data.train.batch_size * 2:
-            self.save_image(self._get_save_path('image', 'jpg'), data, 'end_of_iteration')
+            self.save_image(self._get_save_path('image', 'jpg'), data, 'end_of_iteration', False)
             self.save_checkpoint(current_epoch, current_iteration)
         # Compute image to be saved.
         elif current_iteration % self.opt.image_save_iter < self.opt.data.train.batch_size * 2:
-            self.save_image(self._get_save_path('image', 'jpg'), data, 'end_of_iteration')
+            self.save_image(self._get_save_path('image', 'jpg'), data, 'end_of_iteration', False)
 
         if current_iteration % self.opt.logging_iter < self.opt.data.train.batch_size * 2:
             self._write_wandb()
@@ -307,8 +307,8 @@ class BaseTrainer(object):
             self.meters[full_name].write(value)
             self.meters[full_name].flush(iteration)
 
-    def save_image(self, path, data, tag):
-        vis_images = self._get_visualizations(data)
+    def save_image(self, path, data, tag, is_valid):
+        vis_images = self._get_visualizations(data, is_valid)
         if is_master() and vis_images is not None:
             # vis_images = torch.cat(vis_images, dim=3).float()
             vis_images = (vis_images + 1) / 2
@@ -344,7 +344,7 @@ class BaseTrainer(object):
     def _end_of_epoch(self, data, current_epoch, current_iteration):
         pass
 
-    def _get_visualizations(self, data):
+    def _get_visualizations(self, data, is_valid):
         return None
 
     def _init_loss(self, opt):
