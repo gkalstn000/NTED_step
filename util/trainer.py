@@ -64,7 +64,7 @@ def get_model_optimizer_and_scheduler(opt):
     dis_module, dis_network_name = opt.dis.type.split('::')
     lib = importlib.import_module(dis_module)
     network = getattr(lib, dis_network_name)
-    net_D = network(**opt.dis.param).to(opt.device)
+    net_D = network(opt.step_size, **opt.dis.param).to(opt.device)
     print('net [{}] parameter count: {:,}'.format(
         'net_D', _calculate_model_size(net_D)))        
 

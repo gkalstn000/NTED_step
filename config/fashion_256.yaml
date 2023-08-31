@@ -105,12 +105,12 @@ data:
     type: data.fashion_data::Dataset
     preprocess_mode: resize_and_crop
     path: ./dataset/deepfashion
-    num_workers: 8
+    num_workers: 4
     sub_path: 256-176
     resolution: 256
     scale_param: 0.1
     train:
-      batch_size: 10          # real_batch_size: 4 * 2 (source-->target & target --> source) * 2 (GPUs) = 16
+      batch_size: 2          # real_batch_size: 4 * 2 (source-->target & target --> source) * 2 (GPUs) = 16
       distributed: True
     val:
       batch_size: 2

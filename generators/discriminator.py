@@ -8,7 +8,7 @@ from generators.base_function import EqualLinear, ResBlock, ConvLayer
 
 
 class Discriminator(nn.Module):
-    def __init__(self, size, channels, input_nc=3, blur_kernel=[1, 3, 3, 1], is_square_image=True):
+    def __init__(self, step_size, size, channels, input_nc=3, blur_kernel=[1, 3, 3, 1], is_square_image=True):
         super().__init__()
 
         convs = [ConvLayer(input_nc, channels[size], 1)]
@@ -29,7 +29,7 @@ class Discriminator(nn.Module):
         self.stddev_group = 4
         self.stddev_feat = 1
 
-        self.step_size = 10
+        self.step_size = step_size
         h_ = 256 // 2**(log_size-2)
         w_ = 176 // 2**(log_size-2)
         self.fc_step = nn.Sequential(nn.Linear((in_channel + 1) * h_ * w_, 256),

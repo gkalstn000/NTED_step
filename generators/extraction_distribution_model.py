@@ -32,18 +32,17 @@ class Generator(nn.Module):
         return sum(p.numel() for p in module.parameters() if p.requires_grad)
 
     def forward(self,
-                ref_image, ref_timestep,
-                input_image, input_skeleton, input_timestep
+                ref_image,
+                input_image, input_skeleton, timestep
                 ):
         output_dict={}
         recoder = collections.defaultdict(list)
         b, c, h, w = ref_image.size()
-        ref_time_emb = timestep_embedding(ref_timestep).to(ref_image.device).view(b, 1, h, w)
-        input_time_emb = timestep_embedding(input_timestep).to(ref_image.device).view(b, 1, h, w)
+        time_emb = timestep_embedding(timestep).to(ref_image.device).view(b, 1, h, w)
 
-        input_ = torch.cat([input_image + input_time_emb, input_skeleton], 1)
+        input_ = torch.cat([input_image + time_emb, input_skeleton], 1)
         skeleton_feature = self.skeleton_encoder(input_)
-        _ = self.reference_encoder(ref_image + ref_time_emb, recoder = recoder)
+        _ = self.reference_encoder(ref_image + time_emb, recoder = recoder)
 
         neural_textures = recoder["neural_textures"]
         output_dict['fake_image'] = self.target_image_renderer(

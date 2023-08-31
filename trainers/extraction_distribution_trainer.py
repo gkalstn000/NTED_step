@@ -128,23 +128,40 @@ class Trainer(BaseTrainer):
         self.gen_losses = {}
         self.dis_losses = {}
 
+        fake_imgs = []
+        true_imgs = []
+        steps = []
+        infos = defaultdict(list)
+
         src_img, tgt_img, _, tgt_skeleton, _, tgt_face = self.preprocess_input(data)
-
         b, c, h, w = src_img.size()
-        tgt_timestep = self.sample_timestep(b)
-        ref_timestep = tgt_timestep + 1
 
-        fake_img, info = self.generate_fake_one_step(self.net_G,
-                                                     src_img, ref_timestep,
-                                                     tgt_img, tgt_skeleton, tgt_timestep)
+        for step in range(self.opt.step_size) :
+            step_tensor = torch.tensor([step for _ in range(b)])
 
-        gt_img = self.sample_image(tgt_img, ref_timestep).to(tgt_img.device)
+            fake_img, info = self.generate_fake_one_step(self.net_G,
+                                                         src_img,
+                                                         tgt_img, tgt_skeleton, step_tensor)
+            true_img = self.sample_image(tgt_img, step_tensor + 1)
 
-        self.calculate_G_loss(fake_img, gt_img, src_img, ref_timestep.to(tgt_img.device)-1, tgt_face, info)
+            fake_imgs.append(fake_img)
+            true_imgs.append(true_img)
+            steps.append(step_tensor)
+            for key, val in info.items():
+                infos[key].append(val)
+
+        fake_imgs = torch.cat(fake_imgs, 0)
+        true_imgs = torch.cat(true_imgs, 0)
+        steps = torch.cat(steps, 0)
+        faces = tgt_face.repeat(self.opt.step_size, 1)
+        for key, val in infos.items():
+            infos[key] = [torch.cat(tensors, dim=0) for tensors in zip(*val)]
+
+        self.calculate_G_loss(fake_imgs, true_imgs, src_img.repeat(self.opt.step_size, 1, 1, 1), steps.to(tgt_img.device), faces, infos)
 
         accumulate(self.net_G_ema, self.net_G_module, self.accum)
         # training step of the discriminator
-        self.calculate_D_loss(fake_img, gt_img, ref_timestep.to(tgt_img.device)-1)
+        self.calculate_D_loss(fake_imgs, true_imgs, steps.to(tgt_img.device))
 
     def calculate_G_loss(self, fake_img, gt_image, ref_image, ref_timestep, tgt_face, info):
         step_true = ref_timestep.long()
@@ -206,7 +223,7 @@ class Trainer(BaseTrainer):
                 real_img_aug = gt_image
                 real_pred, step_pred = self.net_D(real_img_aug)
 
-                r1_loss = self.d_r1_loss(real_pred, gt_image) + self.criteria['step'](step_pred, step_true) * 0
+                r1_loss = self.d_r1_loss(real_pred, gt_image) + self.d_r1_loss(step_pred, gt_image)
 
                 self.net_D.zero_grad()
                 (self.opt.trainer.r1 / 2 * r1_loss * self.opt.trainer.d_reg_every + 0 * real_pred[0]).backward()
@@ -241,26 +258,27 @@ class Trainer(BaseTrainer):
             data (dict): data used in the training step
         """
         self.net_G_ema.eval()
-
         with torch.no_grad() :
-            if is_valid :
-                sample = self.generate_fake_full_step(self.net_G_ema, data)
-            else :
-
-                src_img, tgt_img, _, tgt_skeleton, _, tgt_face = self.preprocess_input(data)
-
-                b, c, h, w = src_img.size()
-                tgt_timestep = self.sample_timestep(b)
-                ref_timestep = self.sample_timestep(b, tgt_timestep)
-
-                fake_img, _ = self.generate_fake_one_step(self.net_G_ema,
-                                                             src_img, ref_timestep,
-                                                             tgt_img, tgt_skeleton, tgt_timestep)
-
-                true_src = self.sample_image(src_img, ref_timestep)
-                true_tgt = self.sample_image(tgt_img, ref_timestep)
-                input_image = self.sample_image(tgt_img, tgt_timestep)
-                sample = torch.cat([true_src.cpu(), input_image.cpu(), tgt_skeleton[:, :3].cpu(), fake_img.cpu().detach(), true_tgt.cpu()], 3)
+            sample = self.generate_fake_full_step(self.net_G_ema, data)
+            #
+            # if is_valid :
+            #     sample = self.generate_fake_full_step(self.net_G_ema, data)
+            # else :
+            #
+            #     src_img, tgt_img, _, tgt_skeleton, _, tgt_face = self.preprocess_input(data)
+            #
+            #     b, c, h, w = src_img.size()
+            #     tgt_timestep = self.sample_timestep(b)
+            #     ref_timestep = self.sample_timestep(b, tgt_timestep)
+            #
+            #     fake_img, _ = self.generate_fake_one_step(self.net_G_ema,
+            #                                                  src_img, ref_timestep,
+            #                                                  tgt_img, tgt_skeleton, tgt_timestep)
+            #
+            #     true_src = self.sample_image(src_img, ref_timestep)
+            #     true_tgt = self.sample_image(tgt_img, ref_timestep)
+            #     input_image = self.sample_image(tgt_img, tgt_timestep)
+            #     sample = torch.cat([true_src.cpu(), input_image.cpu(), tgt_skeleton[:, :3].cpu(), fake_img.cpu().detach(), true_tgt.cpu()], 3)
 
         return sample
 
@@ -272,7 +290,7 @@ class Trainer(BaseTrainer):
             data_loader: dataloader of the dataset
             output_dir (str): folder for saving the result images
             current_iteration (int): current iteration 
-        """                  
+        """
         net_G = self.net_G_ema.eval()
         os.makedirs(output_dir, exist_ok=True)
         print('number of samples %d' % len(data_loader))
@@ -306,14 +324,13 @@ class Trainer(BaseTrainer):
         fake_tgts.extend([xt.cpu(), tgt_skeleton[:, :3].cpu()])
 
         for step in range(self.opt.step_size) :
-            tgt_timestep = torch.tensor([step for _ in range(b)])
-            ref_timestep = tgt_timestep + 1
-            output_dict = net_G(src_img, ref_timestep,
-                                xt, tgt_skeleton, tgt_timestep)
+            timestep = torch.tensor([step for _ in range(b)])
+            output_dict = net_G(src_img,
+                                xt, tgt_skeleton, timestep)
 
             xt, info = output_dict['fake_image'], output_dict['info']
 
-            gt_tgt = self.sample_image(tgt_img, ref_timestep)
+            gt_tgt = self.sample_image(tgt_img, timestep + 1)
 
             gt_tgts.append(gt_tgt.cpu())
             fake_tgts.append(xt.cpu())
@@ -326,20 +343,20 @@ class Trainer(BaseTrainer):
 
 
     def generate_fake_one_step(self, net_G,
-                               src_image, ref_timestep,
-                               tgt_image, tgt_map, tgt_timestep):
+                               src_image,
+                               tgt_image, tgt_map, timestep):
 
         device = src_image.device
         b, c, h, w = src_image.size()
-        input_image = self.sample_image(tgt_image, tgt_timestep).to(device)
+        input_image = self.sample_image(tgt_image, timestep).to(device)
 
         noise =  torch.normal(mean=0, std=np.sqrt(0.1), size=(b, c, h, w)).to(device)
-        init_image = self.sample_image(src_image, torch.zeros_like(tgt_timestep)).to(device) + noise
-        index = tgt_timestep == 0
+        init_image = self.sample_image(src_image, torch.zeros_like(timestep)).to(device) + noise
+        index = timestep == 0
         input_image[index] = init_image[index]
 
-        output_dict = net_G(src_image, ref_timestep,
-                            input_image, tgt_map, tgt_timestep)
+        output_dict = net_G(src_image,
+                            input_image, tgt_map, timestep)
 
         fake_img, info = output_dict['fake_image'], output_dict['info']
 
