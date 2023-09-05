@@ -316,7 +316,7 @@ class Trainer(BaseTrainer):
         b, c, h, w = src_img.size()
 
         init_step = torch.tensor([0 for _ in range(b)])
-        noise =  torch.normal(mean=0, std=np.sqrt(0.1), size=(b, c, h, w)).to(src_img.device)
+        noise =  torch.normal(mean=0, std=1, size=(b, c, h, w)).to(src_img.device)
         xt = self.sample_image(src_img, init_step) + noise
 
         gt_tgts.extend([src_img.cpu(), tgt_skeleton[:, :3].cpu()])

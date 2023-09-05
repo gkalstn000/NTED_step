@@ -50,7 +50,7 @@ if __name__ == '__main__':
         resume = 'auto'
     else :
         resume = False
-    wandb.init(project="NTED", name=opt.name, settings=wandb.Settings(code_dir="."), resume=resume)
+    wandb.init(project="NTED", name=opt.name, settings=wandb.Settings(code_dir="."), resume=False)
 
     init_cudnn(opt.cudnn.deterministic, opt.cudnn.benchmark)
     # create a dataset
