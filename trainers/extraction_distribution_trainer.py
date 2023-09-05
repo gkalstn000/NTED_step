@@ -136,33 +136,48 @@ class Trainer(BaseTrainer):
         src_img, tgt_img, _, tgt_skeleton, _, tgt_face = self.preprocess_input(data)
         b, c, h, w = src_img.size()
 
-        for step in range(self.opt.step_size) :
-            step_tensor = torch.tensor([step for _ in range(b)])
+        init_step = self.sample_timestep(b)
 
-            fake_img, info = self.generate_fake_one_step(self.net_G,
+        device = src_img.device
+        xt = self.sample_image(tgt_img, init_step).to(device)
+
+        noise =  torch.normal(mean=0, std=1, size=(b, c, h, w)).to(device)
+        init_image = self.sample_image(src_img, torch.zeros_like(init_step)).to(device) + noise
+        index = init_step == 0
+        xt[index] = init_image[index]
+
+        z = xt.detach().cpu()
+
+        for i in range(self.opt.window_size) :
+            input_timestep = init_step + i
+
+            xt, info = self.generate_fake_one_step(self.net_G,
                                                          src_img,
-                                                         tgt_img, tgt_skeleton, step_tensor)
-            true_img = self.sample_image(tgt_img, step_tensor + 1)
+                                                         xt.detach(), tgt_skeleton, input_timestep)
+            true_img = self.sample_image(tgt_img, input_timestep + 1)
 
-            fake_imgs.append(fake_img)
+            fake_imgs.append(xt)
             true_imgs.append(true_img)
-            steps.append(step_tensor)
+            steps.append(input_timestep)
             for key, val in info.items():
                 infos[key].append(val)
 
-        fake_imgs = torch.cat(fake_imgs, 0)
-        true_imgs = torch.cat(true_imgs, 0)
+        fake_img_batch = torch.cat(fake_imgs, 0)
+        true_img_batch = torch.cat(true_imgs, 0)
         steps = torch.cat(steps, 0)
-        faces = tgt_face.repeat(self.opt.step_size, 1)
+        faces = tgt_face.repeat(self.opt.window_size, 1)
         for key, val in infos.items():
             infos[key] = [torch.cat(tensors, dim=0) for tensors in zip(*val)]
 
-        self.calculate_G_loss(fake_imgs, true_imgs, src_img.repeat(self.opt.step_size, 1, 1, 1), steps.to(tgt_img.device), faces, infos)
+        self.calculate_G_loss(fake_img_batch, true_img_batch, src_img.repeat(self.opt.window_size, 1, 1, 1), steps.to(tgt_img.device), faces, infos)
 
         accumulate(self.net_G_ema, self.net_G_module, self.accum)
         # training step of the discriminator
-        self.calculate_D_loss(fake_imgs, true_imgs, steps.to(tgt_img.device))
+        self.calculate_D_loss(fake_img_batch, true_img_batch, steps.to(tgt_img.device))
 
+        fake_sample = torch.cat([z.cpu().detach(), torch.cat(fake_imgs, 3).cpu().detach()], 3)
+        true_sample = torch.cat([src_img.cpu(), torch.cat(true_imgs, 3).cpu()], 3)
+        self.train_sample = torch.cat([true_sample, fake_sample], 2)
     def calculate_G_loss(self, fake_img, gt_image, ref_image, ref_timestep, tgt_face, info):
         step_true = ref_timestep.long()
         if self.cal_gan_flag :
@@ -258,27 +273,11 @@ class Trainer(BaseTrainer):
             data (dict): data used in the training step
         """
         self.net_G_ema.eval()
-        with torch.no_grad() :
-            sample = self.generate_fake_full_step(self.net_G_ema, data)
-            #
-            # if is_valid :
-            #     sample = self.generate_fake_full_step(self.net_G_ema, data)
-            # else :
-            #
-            #     src_img, tgt_img, _, tgt_skeleton, _, tgt_face = self.preprocess_input(data)
-            #
-            #     b, c, h, w = src_img.size()
-            #     tgt_timestep = self.sample_timestep(b)
-            #     ref_timestep = self.sample_timestep(b, tgt_timestep)
-            #
-            #     fake_img, _ = self.generate_fake_one_step(self.net_G_ema,
-            #                                                  src_img, ref_timestep,
-            #                                                  tgt_img, tgt_skeleton, tgt_timestep)
-            #
-            #     true_src = self.sample_image(src_img, ref_timestep)
-            #     true_tgt = self.sample_image(tgt_img, ref_timestep)
-            #     input_image = self.sample_image(tgt_img, tgt_timestep)
-            #     sample = torch.cat([true_src.cpu(), input_image.cpu(), tgt_skeleton[:, :3].cpu(), fake_img.cpu().detach(), true_tgt.cpu()], 3)
+        if is_valid :
+            with torch.no_grad() :
+                sample = self.generate_fake_full_step(self.net_G_ema, data)
+        else :
+            sample = self.train_sample
 
         return sample
 
@@ -344,37 +343,36 @@ class Trainer(BaseTrainer):
 
     def generate_fake_one_step(self, net_G,
                                src_image,
-                               tgt_image, tgt_map, timestep):
+                               input_image, input_map, timestep, ):
 
-        device = src_image.device
-        b, c, h, w = src_image.size()
-        input_image = self.sample_image(tgt_image, timestep).to(device)
 
-        noise =  torch.normal(mean=0, std=np.sqrt(0.1), size=(b, c, h, w)).to(device)
-        init_image = self.sample_image(src_image, torch.zeros_like(timestep)).to(device) + noise
-        index = timestep == 0
-        input_image[index] = init_image[index]
 
         output_dict = net_G(src_image,
-                            input_image, tgt_map, timestep)
+                            input_image, input_map, timestep)
 
         fake_img, info = output_dict['fake_image'], output_dict['info']
 
         return fake_img, info
 
     def sample_timestep(self, b, tgt_timestep=None):
-        step = torch.randint(0, self.step_size - 1, (b,))
+        step = torch.randint(0, self.step_size - (self.opt.window_size - 1), (b,))
+        assert step.max() + (self.opt.window_size - 1) < self.step_size, 'Over sampling!'
         if tgt_timestep != None:
             exponential_distribution = dist.Exponential(1)
             step = exponential_distribution.sample((b,)) + tgt_timestep + 1
             step[step > self.step_size] = self.step_size
-
+        step[0] = 0
         return step.int()
 
-    def sample_image(self, images, step):
+    def sample_image(self, images, step, sampling_type='linear'):
         min_h, min_w = self.min_size
         max_h, max_w = self.load_size
-        downscale_size = torch.stack([self.exponential_sampling(min_h, max_h, step), self.exponential_sampling(min_w, max_w, step)], dim=1).tolist()
+        if sampling_type == 'exponential' :
+            downscale_size = torch.stack([self.exponential_sampling(min_h, max_h, step), self.exponential_sampling(min_w, max_w, step)], dim=1).tolist()
+        elif sampling_type == 'linear' :
+            downscale_size = torch.stack([self.linear_sampling(min_h, max_h, step), self.linear_sampling(min_w, max_w, step)], dim=1).tolist()
+        else :
+            assert sampling_type in ['exponential', 'linear'], 'sampling image type error [exponential, linear]'
 
         result_batch = []
         for img, size in zip(images, downscale_size) :
@@ -389,3 +387,9 @@ class Trainer(BaseTrainer):
                                          self.step_size + 1)
 
         return torch.round(logspace_values[index.tolist()]).int()
+    def linear_sampling(self, min_value, max_value, index):
+        linspace_values = torch.linspace(torch.tensor(min_value),
+                                         torch.tensor(max_value),
+                                         self.step_size + 1)
+
+        return torch.round(linspace_values[index.tolist()]).int()
