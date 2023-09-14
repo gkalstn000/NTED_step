@@ -15,4 +15,4 @@ CUDA_VISIBLE_DEVICES=2,3 nohup python -m torch.distributed.launch --nproc_per_no
 CUDA_VISIBLE_DEVICES=2 nohup python -m torch.distributed.launch --nproc_per_node=1 --master_port 31312 train.py --config ./config/fashion_256.yaml --name nted_onestep > nted_onestep.out &
 CUDA_VISIBLE_DEVICES=1 nohup python -m torch.distributed.launch --nproc_per_node=1 --master_port 31723 train.py --config ./config/fashion_256.yaml --name nted_fullstep > nted_fullstep.out &
 
-CUDA_VISIBLE_DEVICES=1 nohup python -m torch.distributed.launch --nproc_per_node=1 --master_port 31723 train.py --config ./config/fashion_256.yaml --name nted_fullstep_3 > nted_fullstep_3.out &
+CUDA_VISIBLE_DEVICES=1,2 nohup python -m torch.distributed.launch --nproc_per_node=2 --master_port 31723 train.py --config ./config/fashion_256.yaml --name nted_fullstep_3 > nted_fullstep_3.out &

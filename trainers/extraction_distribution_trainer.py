@@ -295,12 +295,9 @@ class Trainer(BaseTrainer):
         print('number of samples %d' % len(data_loader))
         for it, data in enumerate(tqdm(data_loader)):
             data = self.start_of_iteration(data, current_iteration)
-            input_skeleton = data['target_skeleton']
-            input_image = data['source_image']
+
             with torch.no_grad():
-                output_dict = net_G(
-                    input_image, input_skeleton)    
-            output_images = output_dict['fake_image']
+                output_images = self.generate_fake_full_step(net_G, data, True)
             for output_image, file_name in zip(output_images, data['path']):
                 fullname = os.path.join(output_dir, file_name)
                 output_image = tensor2pilimage(output_image.clamp_(-1, 1),
@@ -308,7 +305,7 @@ class Trainer(BaseTrainer):
                 output_image.save(fullname)
         return None
 
-    def generate_fake_full_step(self, net_G, data):
+    def generate_fake_full_step(self, net_G, data, is_test=False):
         gt_tgts = []
         fake_tgts = []
 
@@ -334,9 +331,13 @@ class Trainer(BaseTrainer):
             gt_tgts.append(gt_tgt.cpu())
             fake_tgts.append(xt.cpu())
 
+        if is_test :
+            return fake_tgts[-1]
+
         gt_sample = torch.cat(gt_tgts, 3)
         fake_sample = torch.cat(fake_tgts, 3)
         sample = torch.cat([gt_sample, fake_sample], 2)
+
 
         return sample
 

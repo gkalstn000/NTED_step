@@ -45,9 +45,13 @@ if __name__ == '__main__':
     net_G, net_D, net_G_ema, opt_G, opt_D, sch_G, sch_D \
         = get_model_optimizer_and_scheduler(opt)
 
-    trainer = get_trainer(opt, net_G, net_D, net_G_ema, \
-                          opt_G, opt_D, sch_G, sch_D, \
-                          test_dataset)
+    trainer = get_trainer(opt,
+                          net_G, net_D,
+                          net_G_ema, \
+                          opt_G, opt_D,
+                          sch_G, sch_D, \
+                          train_dataset, test_dataset,
+                          None)
 
     current_epoch, current_iteration = trainer.load_checkpoint(
         opt, args.which_iter)                          
