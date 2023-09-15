@@ -6,9 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="fc8fcedf-830e-4f2c-8e18-f5d676cd36d7" name="Changes" comment="src fake 수정&#10;discriminator 수정">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/fashion_256.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/fashion_256.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inference.py" beforeDir="false" afterPath="$PROJECT_DIR$/inference.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/train_script.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/train_script.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/trainers/extraction_distribution_trainer.py" beforeDir="false" afterPath="$PROJECT_DIR$/trainers/extraction_distribution_trainer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -331,15 +328,20 @@
           <line>43</line>
           <option name="timeStamp" value="217" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/trainers/extraction_distribution_trainer.py</url>
+          <line>316</line>
+          <option name="timeStamp" value="243" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$train_nipa.coverage" NAME="train_nipa Coverage Results" MODIFIED="1690966386486" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$test.coverage" NAME="test Coverage Results" MODIFIED="1694509511360" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$test.coverage" NAME="test Coverage Results" MODIFIED="1694694097281" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$data_prepare.coverage" NAME="data_prepare Coverage Results" MODIFIED="1689498890141" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$import_debug.coverage" NAME="import debug Coverage Results" MODIFIED="1690519697270" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$demo.coverage" NAME="demo Coverage Results" MODIFIED="1689323132194" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$train.coverage" NAME="train Coverage Results" MODIFIED="1693999031368" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Neural_Texture_Extraction_Distribution$train.coverage" NAME="train Coverage Results" MODIFIED="1694687221642" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
