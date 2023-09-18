@@ -11,14 +11,15 @@ from util.trainer import get_model_optimizer_and_scheduler, set_random_seed, get
 def parse_args():
     parser = argparse.ArgumentParser(description='Training')
     parser.add_argument('--config', default='./config/fashion_512.yaml')
-    parser.add_argument('--name', default=None)
-    parser.add_argument('--checkpoints_dir', default='result',
+    parser.add_argument('--name', type=str)
+    parser.add_argument('--checkpoints_dir', default='checkpoints',
                         help='Dir for saving logs and models.')
     parser.add_argument('--seed', type=int, default=0, help='Random seed.')
     parser.add_argument('--which_iter', type=int, default=None)
     parser.add_argument('--no_resume', action='store_true')
     parser.add_argument('--local_rank', type=int, default=0)
     parser.add_argument('--single_gpu', action='store_true')
+    parser.add_argument('--save_path', default='./results')
     parser.add_argument('--output_dir', type=str)
 
     args = parser.parse_args()
@@ -60,7 +61,7 @@ if __name__ == '__main__':
         test_dataset.sampler.set_epoch(current_epoch)
 
     output_dir = os.path.join(
-        args.output_dir, 
-        'epoch_{:05}_iteration_{:09}'.format(current_epoch, current_iteration)
+        args.save_path,
+        args.name
         )
     trainer.test(test_dataset, output_dir, current_iteration)
