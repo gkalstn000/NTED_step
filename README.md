@@ -1,44 +1,54 @@
-<p align='center'>
-  <b>
-    <a href="https://arxiv.org/abs/2204.06160">ArXiv</a>
-    | 
-    <a href="#Installation">Get Start</a>
-  </b>
-</p> 
+# NTED Step Generation
+
+The PyTorch implementation based on paper NTED
+
+* [Paper](Neural Texture Extraction and Distribution for  Controllable Person Image Synthesis) (**CVPR2022 Oral**)
+* [Github](https://github.com/RenYurui/Neural-Texture-Extraction-Distribution)
 
 
 
-# Neural-Texture-Extraction-Distribution
-
-The PyTorch implementation for our paper "[Neural Texture Extraction and Distribution for  Controllable Person Image Synthesis]()" (**CVPR2022 Oral**)
-
-We propose a Neural-Texture-Extraction-Distribution operation for controllable person image synthesis. Our model can be used to control the **pose** and **appearance**  of a reference image:
-
-- **Pose Control**
 <p align='center'>  
-  <img src='https://user-images.githubusercontent.com/30292465/165339608-73e1147b-136f-49c2-8a62-b6d2ebd44467.gif' width='700'/>
+  <img src='https://user-images.githubusercontent.com/26128046/282382834-bf19fbb3-9085-42b1-b4e7-68be354c7231.png' width='2000'/>
+</p>
+
+<p align='center'>  
+  <img src='https://user-images.githubusercontent.com/26128046/282382398-a822b36b-f54f-4aff-8057-4d455eb6fd64.png' width='2000'/>
 </p>
 
 
-- **Appearance Control**
-<p align='center'>
-  <img src='https://user-images.githubusercontent.com/30292465/165339667-b43fe5c8-7a93-4212-84c6-cb5a1158ca52.gif' width='700'/>
+
+## Generate Image Step-by-Step
+
+<p align='center'>  
+  <img src='https://user-images.githubusercontent.com/26128046/282384506-83b9795d-0e62-448a-9347-ffff81e62663.png' width='2000'/>
 </p>
 
+This section describes the process of generating ground-truth images by downsampling and then upsampling back to the original size.
 
+#### Downsampling Process
 
-## News
+1. **Resolution Range**: The downsampling resolutions are linearly constructed, ranging from `[8, 5]` to `[256, 176]`.
+2. **Steps**: The resolution adjustment is carried out in 20 steps.
 
+#### Training Scheme
 
-- **2022.6.25** Web demo available through Replicate:
+1. **Random Timestep Selection**: During the training process, 3 random timesteps are selected.
 
-    :rocket:
-    [Demo and Docker image on Replicate](https://replicate.com/renyurui/controllable-person-synthesis)
+This methodology is crucial for preparing the dataset and assessing the image restoration capabilities of the model. By undergoing the downsampling and upsampling processes, the model's ability to maintain and restore the characteristics of the original image can be evaluated.
 
-- **2022.4.30** Colab demos are provided for quick exploration.
-- **2022.4.28** Code for PyTorch is available now!
+### Step Prediction (ACGAN)
 
-  
+Building upon the framework of **[Auxiliary Classifier GAN (ACGAN)](https://proceedings.mlr.press/v70/odena17a.html) (PMLR 2017)**, we have incorporated an additional training process: the step prediction loss. This enhancement aims to stabilize the training phase.
+
+#### Key Improvement:
+
+- **Step Prediction Loss**: This added component mitigates a common issue in the original ACGAN framework. Without step prediction, the Discriminator often struggles to accurately determine which step of image generation should be executed. This confusion can lead to the generation of artifacts, such as image cracking. By integrating step prediction loss into the training process, we enhance the Discriminator's ability to more accurately guide the generation process, thereby reducing the occurrence of artifacts.
+
+This modification to the ACGAN framework not only stabilizes the training process but also improves the overall quality of the generated images.
+
+<p align='center'>  
+  <img src='https://user-images.githubusercontent.com/26128046/282387633-0e9c8b01-d0b7-4a80-bd1a-35ee52dd9a8d.png' width='2000'/>
+</p>
 
 ## Installation
 
@@ -52,8 +62,8 @@ We propose a Neural-Texture-Extraction-Distribution operation for controllable p
 
 ``` bash
 # 1. Create a conda virtual environment.
-conda create -n NTED python=3.8
-conda activate NTED
+conda create -n NTED_step python=3.8
+conda activate NTED_step
 conda install -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.3
 
 # 2. Clone the Repo and Install dependencies
@@ -69,49 +79,6 @@ chmod +x insert_mmfashion2mmdetection.sh
 cd ../third_part/mmdetection
 pip install -v -e .
 ```
-
-
-
-## Demo
-
-Several demos are provided. Please first download the resources by runing 
-
-```bash
-cd scripts
-./download_demos.sh
-```
-
-#### Pose Transfer
-
-Run the following code for the results.
-
-```bash
-PATH_TO_OUTPUT=./demo_results
-python demo.py \
---config ./config/fashion_512.yaml \
---which_iter 495400 \
---name fashion_512 \
---file_pairs ./txt_files/demo.txt \
---input_dir ./demo_images \
---output_dir $PATH_TO_OUTPUT
-```
-
-#### Appearance Control
-
-Meanwhile, run the following code for the appearance control demo.
-
-``` bash
-python appearance_control.py \
---config ./config/fashion_512.yaml \
---name fashion_512 \
---which_iter 495400 \
---input_dir ./demo_images \
---file_pairs ./txt_files/appearance_control.txt
-```
-
-#### Colab Demo
-
-Please check the [Colab Demos](https://colab.research.google.com/drive/1DTUx6yIo912sRMSEgwOSe6vPgMY-hMRE?usp=sharing) for pose control and appearance control.
 
 
 
@@ -145,18 +112,18 @@ Please check the [Colab Demos](https://colab.research.google.com/drive/1DTUx6yIo
 
 ## Training 
 
-This project supports multi-GPUs training. The following code shows an example for training the model with 512x352 images using 4 GPUs.
+This project supports multi-GPUs training. The following code shows an example for training the model with 256x176 images using 4 GPUs.
 
   ```bash
 CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch \
 --nproc_per_node=4 \
 --master_port 1234 train.py \
---config ./config/fashion_512.yaml \
+--config ./config/fashion_256.yaml \
 --name $name_of_your_experiment
   ```
 
-All configs for this experiment are saved in `./config/fashion_512.yaml`. 
-If you change the number of GPUs, you may need to modify the `batch_size` in `./config/fashion_512.yaml` to ensure using a same `batch_size`.
+All configs for this experiment are saved in `./config/fashion_256.yaml`. 
+If you change the number of GPUs, you may need to modify the `batch_size` in `./config/fashion_256.yaml` to ensure using a same `batch_size`.
 
 
 
@@ -167,25 +134,15 @@ If you change the number of GPUs, you may need to modify the `batch_size` in `./
 - Run the following code to evaluate the trained model:
 
   ```bash
-  # run evaluation for 512x352 images
-  python -m torch.distributed.launch \
-  --nproc_per_node=1 \
-  --master_port 12345 inference.py \
-  --config ./config/fashion_512.yaml \
-  --name fashion_512 \
-  --no_resume \
-    --which_iter 495400 \
-  --output_dir ./result/fashion_512/inference 
-  
-  # run evaluation for 256x176 images
   python -m torch.distributed.launch \
   --nproc_per_node=1 \
   --master_port 12345 inference.py \
   --config ./config/fashion_256.yaml \
   --name fashion_256 \
   --no_resume \
-  --which_iter 495400 \
   --output_dir ./result/fashion_256/inference 
   ```
 
-The result images are save in `./result/fashion_512/inference` and `./result/fashion_256/inference`. 
+
+
+## Evaluation
