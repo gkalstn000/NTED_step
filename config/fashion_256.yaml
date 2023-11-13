@@ -12,7 +12,7 @@ window_size: 3
 
 gen_optimizer:
     type: adam
-    lr: 0.002
+    lr: 0.0002
     adam_beta1: 0.
     adam_beta2: 0.99
     lr_policy:
@@ -23,7 +23,7 @@ gen_optimizer:
 
 dis_optimizer:
     type: adam
-    lr: 0.001882
+    lr: 0.0001882
     adam_beta1: 0.
     adam_beta2: 0.9905
     lr_policy:

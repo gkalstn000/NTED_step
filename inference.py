@@ -12,7 +12,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Training')
     parser.add_argument('--config', default='./config/fashion_512.yaml')
     parser.add_argument('--name', type=str)
-    parser.add_argument('--checkpoints_dir', default='checkpoints',
+    parser.add_argument('--checkpoints_dir', default='result',
                         help='Dir for saving logs and models.')
     parser.add_argument('--seed', type=int, default=0, help='Random seed.')
     parser.add_argument('--which_iter', type=int, default=None)

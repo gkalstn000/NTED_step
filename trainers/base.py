@@ -163,6 +163,9 @@ class BaseTrainer(object):
         checkpoint = torch.load(checkpoint_path, map_location=lambda storage, loc: storage)
         self.net_G_ema.load_state_dict(checkpoint['net_G_ema'])
         print('load [net_G_ema] from {}'.format(checkpoint_path))
+        self.net_G.load_state_dict(checkpoint['net_G'])
+        print('load [net_G] from {}'.format(checkpoint_path))
+
         if self.opt.phase == 'train':
             if 'net_G' not in checkpoint:
                 self.net_G.module.load_state_dict(checkpoint['net_G_ema']) 

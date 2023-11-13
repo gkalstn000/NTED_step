@@ -290,7 +290,7 @@ class Trainer(BaseTrainer):
             output_dir (str): folder for saving the result images
             current_iteration (int): current iteration 
         """
-        net_G = self.net_G_ema.eval()
+        net_G = self.net_G.eval()
         os.makedirs(output_dir, exist_ok=True)
         print('number of samples %d' % len(data_loader))
         for it, data in enumerate(tqdm(data_loader)):
